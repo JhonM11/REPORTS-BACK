@@ -27,6 +27,7 @@ public class ReportService {
     @Autowired
     private EmailService emailService;
 
+
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
     @Scheduled(fixedRate = 60000) // Cada minuto
@@ -38,8 +39,8 @@ public class ReportService {
 
         // Obtener los reportes que deben ejecutarse en la hora actual y cuyo estado es 'A'
         List<Map<String, Object>> reports = jdbcTemplate.queryForList(
-                "SELECT CODIGO, CONSULTA, NOMBRE_ARCHIVO, DESTINATARIOS FROM REPORTS " +
-                        "WHERE ESTADO = 'A' AND  TO_CHAR(H_EJECUCION) = ?",
+                "SELECT CODIGO, CONSULTA, NOMBRE_ARCHIVO, DESTINATARIOS, ASUNTO, CUERPO, RUTA_GENERACION FROM REPORTS " +
+                        "WHERE ESTADO = 'A' AND TO_CHAR(H_EJECUCION) = ?",
                 horaActual
         );
 
@@ -49,6 +50,9 @@ public class ReportService {
                 String consulta = (String) report.get("CONSULTA");
                 String nombreArchivo = (String) report.get("NOMBRE_ARCHIVO");
                 String destinatarios = (String) report.get("DESTINATARIOS");
+                String asunto = (String) report.get("ASUNTO");
+                String cuerpo = (String) report.get("CUERPO");
+                String rutaGeneracion = (String) report.get("RUTA_GENERACION");
 
                 logger.info("Procesando reporte: {}", codigo);
 
@@ -56,7 +60,7 @@ public class ReportService {
                 List<Map<String, Object>> result = jdbcTemplate.queryForList(consulta);
                 logger.info("Ejecutando consulta en al BD");
 
-                String filePath = fileService.generarArchivo(nombreArchivo, result);
+                String filePath = fileService.generarArchivo(nombreArchivo, result, rutaGeneracion);
                 logger.info("Archivo generado");
 
                 String zipFilePath = fileService.comprimirArchivo(filePath);
@@ -65,7 +69,7 @@ public class ReportService {
                 logger.info("Se procede a enviar el correo con la información");
 
                 // Enviar por correo
-                emailService.enviableCore(destinatarios, zipFilePath);
+                emailService.enviarCorreo(destinatarios, asunto, cuerpo, zipFilePath);
 
                 logger.info("Correo enviado a: {}", destinatarios);
 
@@ -89,3 +93,5 @@ public class ReportService {
         }
     }
 }
+
+

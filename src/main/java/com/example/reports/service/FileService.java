@@ -13,8 +13,8 @@ import java.util.zip.ZipOutputStream;
 @Service
 public class FileService {
 
-    public String generarArchivo(String nombreArchivo, List<Map<String, Object>> data) throws IOException {
-        String filePath = "./" + nombreArchivo + ".csv";
+    public String generarArchivo(String nombreArchivo, List<Map<String, Object>> data, String rutaGeneracion) throws IOException {
+        String filePath = rutaGeneracion + "/" + nombreArchivo + ".csv";  // Usando la ruta proporcionada
         try (FileWriter writer = new FileWriter(filePath)) {
             for (Map<String, Object> row : data) {
                 writer.write(row.toString() + "\n");

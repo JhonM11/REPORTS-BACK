@@ -14,12 +14,12 @@ public class EmailService {
     @Autowired
     private JavaMailSender mailSender;
 
-    public void enviableCore(String destinatarios, String zipFilePath) throws MessagingException, jakarta.mail.MessagingException {
+    public void enviarCorreo(String destinatarios, String asunto, String cuerpo, String zipFilePath) throws MessagingException, jakarta.mail.MessagingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
         helper.setTo(destinatarios.split(","));
-        helper.setSubject("Reporte Generado");
-        helper.setText("Adjunto el reporte solicitado.");
+        helper.setSubject(asunto);  // Asunto del correo
+        helper.setText(cuerpo);  // Cuerpo del correo
         helper.addAttachment("reporte.zip", Paths.get(zipFilePath).toFile());
         mailSender.send(message);
     }
