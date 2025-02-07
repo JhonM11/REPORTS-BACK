@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -15,9 +16,14 @@ public class FileService {
 
     public String generarArchivo(String nombreArchivo, List<Map<String, Object>> data, String rutaGeneracion) throws IOException {
         String filePath = rutaGeneracion + "/" + nombreArchivo + ".csv";  // Usando la ruta proporcionada
+
         try (FileWriter writer = new FileWriter(filePath)) {
             for (Map<String, Object> row : data) {
-                writer.write(row.toString() + "\n");
+                // Unir los valores sin incluir las claves, separados por un espacio
+                String linea = String.join(" ", row.values().stream()
+                        .map(value -> Objects.toString(value, "")) // Si es null, usa ""
+                        .toArray(String[]::new));
+                writer.write(linea + "\n");
             }
         }
         return filePath;

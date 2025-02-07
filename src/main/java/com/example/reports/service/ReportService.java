@@ -56,22 +56,29 @@ public class ReportService {
 
                 logger.info("Procesando reporte: {}", codigo);
 
-                // Ejecutar la consulta y generar el archivo
-                List<Map<String, Object>> result = jdbcTemplate.queryForList(consulta);
-                logger.info("Ejecutando consulta en al BD");
 
+                // Ejecutar la consulta y generar el archivo
+                logger.info("Ejecutando consulta en la BD");
+                List<Map<String, Object>> result = jdbcTemplate.queryForList(consulta);
+
+
+                logger.info("Inicia procedo de escritura");
                 String filePath = fileService.generarArchivo(nombreArchivo, result, rutaGeneracion);
                 logger.info("Archivo generado");
 
+
+
+                logger.info("Inicia proceso de compresión del archivo");
                 String zipFilePath = fileService.comprimirArchivo(filePath);
                 logger.info("Archivo generado y comprimido en: {}", zipFilePath);
 
+
+
+                // Enviar por correo'
                 logger.info("Se procede a enviar el correo con la información");
-
-                // Enviar por correo
                 emailService.enviarCorreo(destinatarios, asunto, cuerpo, zipFilePath);
-
                 logger.info("Correo enviado a: {}", destinatarios);
+
 
                 // Registrar la ejecución en logs
                 jdbcTemplate.update(
